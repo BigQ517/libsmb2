@@ -35,6 +35,7 @@ IOP_OBJS =  aes.o \
             smb2-cmd-query-directory.o \
             smb2-cmd-query-info.o \
             smb2-cmd-read.o \
+			smb2-cmd-get.o \
             smb2-cmd-session-setup.o \
             smb2-cmd-set-info.o \
             smb2-cmd-tree-connect.o \

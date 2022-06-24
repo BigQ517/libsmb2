@@ -175,6 +175,10 @@ struct smb2_pdu *smb2_cmd_read_async(struct smb2_context *smb2,
                                      struct smb2_read_request *req,
                                      smb2_command_cb cb, void *cb_data);
 
+
+struct smb2_pdu *smb2_cmd_get_async(struct smb2_context *smb2,
+	struct smb2_get_request *req,
+	smb2_command_cb cb, void *cb_data);
 /*
  * Asynchronous SMB2 Write
  *

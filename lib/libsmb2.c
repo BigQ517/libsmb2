@@ -162,7 +162,7 @@ struct smb2fh {
         int64_t offset;
         int64_t end_of_file;
 };
-
+ 
 static void
 smb2_close_context(struct smb2_context *smb2)
 {
@@ -1413,6 +1413,108 @@ smb2_read_async(struct smb2_context *smb2, struct smb2fh *fh,
         return smb2_pread_async(smb2, fh, buf, count, fh->offset,
                                 cb, cb_data);
 }
+//get
+struct get_data {
+	smb2_command_cb cb;
+	void *cb_data; 
+	struct smb2_get_cb_data get_cb_data;
+};
+
+static void
+get_cb(struct smb2_context *smb2, int status,
+	void *command_data, void *private_data)
+{
+	struct get_data *rd = private_data;
+	struct smb2_get_reply *rep = command_data;
+
+	if (status && status != SMB2_STATUS_END_OF_FILE) {
+		smb2_set_error(smb2, "Get/Write failed with (0x%08x) %s",
+			status, nterror_to_str(status));
+		rd->cb(smb2, -nterror_to_errno(status), &rd->get_cb_data, rd->cb_data);
+		free(rd);
+		return;
+	}
+
+	if (status == SMB2_STATUS_SUCCESS) {
+		rd->get_cb_data.offset = rd->get_cb_data.offset + rep->data_length;
+	}
+
+	rd->cb(smb2, rep->data_length, &rd->get_cb_data, rd->cb_data);
+	free(rd);
+} 
+int
+smb2_get_async(struct smb2_context *smb2, uint64_t key,
+	uint8_t *buf, uint64_t offset, uint32_t count,
+	smb2_command_cb cb, void *cb_data)  
+{
+	if (smb2 == NULL) {
+		return -EINVAL;
+	}
+	if (key == NULL) {
+		smb2_set_error(smb2, "key  was NULL");
+		return -EINVAL;
+	} 
+	struct smb2_get_request req;
+	struct get_data *rd;
+	struct smb2_pdu *pdu;
+	int needed_credits;
+
+ 
+
+	rd = calloc(1, sizeof(struct read_data));
+	if (rd == NULL) {
+		smb2_set_error(smb2, "Failed to allocate get_data");
+		return -ENOMEM;
+	}
+
+	rd->cb = cb;
+	rd->cb_data = cb_data;
+	rd->get_cb_data.key = key;
+	rd->get_cb_data.buf = buf;
+	rd->get_cb_data.count = count;
+	rd->get_cb_data.offset = offset;
+
+	if (count > smb2->max_read_size) {
+		count = smb2->max_read_size;
+	}
+	needed_credits = (count - 1) / 65536 + 1;
+
+	if (smb2->dialect > SMB2_VERSION_0202) {
+		if (needed_credits > MAX_CREDITS - 16) {
+			count = (MAX_CREDITS - 16) * 65536;
+		}
+		needed_credits = (count - 1) / 65536 + 1;
+		if (needed_credits > smb2->credits) {
+			count = smb2->credits * 65536;
+		}
+	}
+	else {
+		if (count > 65536) {
+			count = 65536;
+		}
+	}
+	needed_credits = (count - 1) / 65536 + 1;
+
+	memset(&req, 0, sizeof(struct smb2_get_request));
+	 
+	req.length = count;
+	req.offset = offset;
+	req.buf = buf;
+	req.key =key; 
+	req.minimum_count = 0; 
+	pdu = smb2_cmd_get_async(smb2, &req, get_cb, rd);
+	if (pdu == NULL) {
+		smb2_set_error(smb2, "Failed to create read command");
+		return -EINVAL;
+	}
+
+	smb2_queue_pdu(smb2, pdu);
+
+	return 0;
+
+}
+
+
 
 struct write_data {
         smb2_command_cb cb;
@@ -2541,7 +2643,7 @@ smb2_disconnect_share_async(struct smb2_context *smb2,
                 return -ENOMEM;
         }
         smb2_queue_pdu(smb2, pdu);
-
+		smb2->is_connected = 0;
         return 0;
 }
 

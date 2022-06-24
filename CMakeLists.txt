@@ -127,6 +127,7 @@ set(COMPONENT_SRCS
     lib/smb2-cmd-query-directory.c
     lib/smb2-cmd-query-info.c
     lib/smb2-cmd-read.c
+	lib/smb2-cmd-get.c
     lib/smb2-cmd-session-setup.c
     lib/smb2-cmd-set-info.c
     lib/smb2-cmd-tree-connect.c

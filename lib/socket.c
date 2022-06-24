@@ -1075,6 +1075,7 @@ smb2_connect_async(struct smb2_context *smb2, const char *server,
         if (err == 0) {
                 smb2->connect_cb   = cb;
                 smb2->connect_data = private_data;
+				smb2->is_connected = 1;
         } else {
                 free(smb2->connecting_fds);
                 smb2->connecting_fds = NULL;
@@ -1082,6 +1083,7 @@ smb2_connect_async(struct smb2_context *smb2, const char *server,
                 freeaddrinfo(smb2->addrinfos);
                 smb2->addrinfos = NULL;
                 smb2->next_addrinfo = NULL;
+				smb2->is_connected = 0;
         }
 
         return err;

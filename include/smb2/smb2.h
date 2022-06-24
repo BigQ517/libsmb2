@@ -67,6 +67,8 @@ enum smb2_command {
         SMB2_QUERY_INFO      = 16,
         SMB2_SET_INFO        = 17,
         /* SMB2_OPLOCK_BREAK, */
+		SMB2_GET			 = 19,
+		SMB2_PUT			 = 20,
 };
 
 /*
@@ -459,6 +461,21 @@ struct smb2_read_reply {
         uint8_t data_offset;
         uint32_t data_length;
         uint32_t data_remaining;
+};
+#define SMB2_GET_REQUEST_SIZE 27
+struct smb2_get_request {
+	uint64_t key;
+	uint32_t length;
+	uint64_t offset;
+	uint8_t *buf; 
+	uint32_t minimum_count;
+	 
+};
+#define SMB2_GET_REPLY_SIZE 17
+struct smb2_get_reply {
+	uint8_t data_offset;
+	uint32_t data_length;
+	uint32_t data_remaining;
 };
 
 #define SMB2_QUERY_INFO_REQUEST_SIZE 41

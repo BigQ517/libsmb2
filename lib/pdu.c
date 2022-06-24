@@ -445,6 +445,8 @@ smb2_get_fixed_size(struct smb2_context *smb2, struct smb2_pdu *pdu)
                 return SMB2_FLUSH_REPLY_SIZE;
         case SMB2_READ:
                 return SMB2_READ_REPLY_SIZE;
+		case SMB2_GET:
+			return SMB2_GET_REPLY_SIZE;
         case SMB2_WRITE:
                 return SMB2_WRITE_REPLY_SIZE;
         case SMB2_ECHO:
@@ -487,6 +489,8 @@ smb2_process_payload_fixed(struct smb2_context *smb2, struct smb2_pdu *pdu)
                 return smb2_process_flush_fixed(smb2, pdu);
         case SMB2_READ:
                 return smb2_process_read_fixed(smb2, pdu);
+		case SMB2_GET:
+			return smb2_process_get_fixed(smb2, pdu);
         case SMB2_WRITE:
                 return smb2_process_write_fixed(smb2, pdu);
         case SMB2_ECHO:
@@ -529,6 +533,8 @@ smb2_process_payload_variable(struct smb2_context *smb2, struct smb2_pdu *pdu)
                 return 0;
         case SMB2_READ:
                 return 0;
+		case SMB2_GET:
+			return 0;
         case SMB2_WRITE:
                 return 0;
         case SMB2_ECHO:

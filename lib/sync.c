@@ -175,7 +175,7 @@ int smb2_disconnect_share(struct smb2_context *smb2)
         rc = cb_data->status;
  out:
         free(cb_data);
-
+		smb2->is_connected = 0;
 	return rc;
 }
 
@@ -470,7 +470,36 @@ int smb2_read(struct smb2_context *smb2, struct smb2fh *fh,
 
 	return rc;
 }
+int smb2_get(struct smb2_context *smb2, uint64_t key,
+	uint8_t *buf, uint64_t offset, uint32_t count)
+{
+	struct sync_cb_data *cb_data;
+	int rc = 0;
 
+	cb_data = calloc(1, sizeof(struct sync_cb_data));
+	if (cb_data == NULL) {
+		smb2_set_error(smb2, "Failed to allocate sync_cb_data");
+		return -ENOMEM;
+	}
+
+	rc = smb2_get_async(smb2, key, buf, offset,count,
+		generic_status_cb, cb_data);
+	if (rc < 0) {
+		goto out;
+	}
+
+	rc = wait_for_reply(smb2, cb_data);
+	if (rc < 0) {
+		cb_data->status = SMB2_STATUS_CANCELLED;
+		return rc;
+	}
+
+	rc = cb_data->status;
+out:
+	free(cb_data);
+
+	return rc;
+}
 int smb2_write(struct smb2_context *smb2, struct smb2fh *fh,
                const uint8_t *buf, uint32_t count)
 {

@@ -28,6 +28,7 @@ set(SOURCES aes.c
             smb2-cmd-query-directory.c
             smb2-cmd-query-info.c
             smb2-cmd-read.c
+			smb2-cmd-get.c
             smb2-cmd-session-setup.c
             smb2-cmd-set-info.c
             smb2-cmd-tree-connect.c

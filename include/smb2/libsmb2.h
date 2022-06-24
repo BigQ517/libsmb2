@@ -499,7 +499,7 @@ void smb2_seekdir(struct smb2_context *smb2, struct smb2dir *smb2dir,
 /*
  * OPEN
  */
-struct smb2fh;
+struct smb2fh; 
 /*
  * Async open()
  *
@@ -596,6 +596,13 @@ struct smb2_read_cb_data {
         uint8_t *buf;
         uint32_t count;
         uint64_t offset;
+};
+
+struct smb2_get_cb_data {
+	uint64_t key;
+	uint8_t *buf;
+	uint32_t count;
+	uint64_t offset;
 };
 
 struct smb2_write_cb_data {
@@ -699,7 +706,17 @@ int smb2_read_async(struct smb2_context *smb2, struct smb2fh *fh,
  * Sync read()
  */
 int smb2_read(struct smb2_context *smb2, struct smb2fh *fh,
-              uint8_t *buf, uint32_t count);
+              uint8_t *buf, uint32_t count); 
+
+/*
+ * Sync get()
+ */
+int smb2_get(struct smb2_context *smb2, uint64_t key,
+	uint8_t *buf, uint64_t offset,uint32_t count);
+
+int smb2_get_async(struct smb2_context *smb2, uint64_t key,
+	uint8_t *buf, uint64_t offset, uint32_t count,
+	smb2_command_cb cb, void *cb_data);
 
 /*
  * WRITE
