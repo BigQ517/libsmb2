@@ -14,7 +14,7 @@ set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig" C
 set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/cmake/libsmb2" CACHE PATH "Installation directory for cmake (.cmake) files")
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(ENABLE_EXAMPLES "Build example programs" OFF)
+option(ENABLE_EXAMPLES "Build example programs" ON)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 

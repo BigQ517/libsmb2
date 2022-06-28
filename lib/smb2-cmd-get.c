@@ -45,13 +45,14 @@
 
 #include "smb2.h"
 #include "libsmb2.h"
-#include "libsmb2-private.h"
-
+#include "libsmb2-private.h" 
+#include <stdio.h>
 static int
 smb2_encode_get_request(struct smb2_context *smb2,
                          struct smb2_pdu *pdu,
                          struct smb2_get_request *req)
 {
+	 
         int len;
         uint8_t *buf;
         struct smb2_iovec *iov;
@@ -74,6 +75,8 @@ smb2_encode_get_request(struct smb2_context *smb2,
         smb2_set_uint64(iov, 6, req->offset); 
 		smb2_set_uint64(iov,14, req->key);
         smb2_set_uint32(iov, 22, req->minimum_count);  
+		static uint8_t zero; 
+		smb2_add_iovector(smb2, &pdu->out, &zero, 1, NULL);
         return 0;
 }
 
@@ -83,6 +86,8 @@ smb2_cmd_get_async(struct smb2_context *smb2,
                     smb2_command_cb cb, void *cb_data)
 {
         struct smb2_pdu *pdu;
+	//	struct sync_cb_data *sync_cb_data = cb_data;
+		//printf("status.%s\n", sync_cb_data->status);
 
         pdu = smb2_allocate_pdu(smb2, SMB2_GET, cb, cb_data);
         if (pdu == NULL) {
@@ -95,8 +100,8 @@ smb2_cmd_get_async(struct smb2_context *smb2,
         }
 
         /* Add a vector for the buffer that the application gave us */
-      /*  smb2_add_iovector(smb2, &pdu->in, req->buf,
-                          req->length, NULL);*/
+        smb2_add_iovector(smb2, &pdu->in, req->buf,
+                          req->length, NULL);
 
         if (smb2_pad_to_64bit(smb2, &pdu->out) != 0) {
                 smb2_free_pdu(smb2, pdu);
@@ -104,9 +109,9 @@ smb2_cmd_get_async(struct smb2_context *smb2,
         }
 
         /* Adjust credit charge for large payloads */
-        //if (smb2->supports_multi_credit) {
-        //        pdu->header.credit_charge = (req->length - 1) / 65536 + 1; // 3.1.5.2 of [MS-SMB2]
-        //}
+        if (smb2->supports_multi_credit) {
+                pdu->header.credit_charge = (req->length - 1) / 65536 + 1; // 3.1.5.2 of [MS-SMB2]
+        }
 
         return pdu;
 }

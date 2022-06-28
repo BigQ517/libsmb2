@@ -1447,6 +1447,7 @@ smb2_get_async(struct smb2_context *smb2, uint64_t key,
 	uint8_t *buf, uint64_t offset, uint32_t count,
 	smb2_command_cb cb, void *cb_data)  
 {
+	 
 	if (smb2 == NULL) {
 		return -EINVAL;
 	}
@@ -1461,7 +1462,7 @@ smb2_get_async(struct smb2_context *smb2, uint64_t key,
 
  
 
-	rd = calloc(1, sizeof(struct read_data));
+	rd = calloc(1, sizeof(struct get_data));
 	if (rd == NULL) {
 		smb2_set_error(smb2, "Failed to allocate get_data");
 		return -ENOMEM;
@@ -1504,7 +1505,7 @@ smb2_get_async(struct smb2_context *smb2, uint64_t key,
 	req.minimum_count = 0; 
 	pdu = smb2_cmd_get_async(smb2, &req, get_cb, rd);
 	if (pdu == NULL) {
-		smb2_set_error(smb2, "Failed to create read command");
+		smb2_set_error(smb2, "Failed to create get command");
 		return -EINVAL;
 	}
 

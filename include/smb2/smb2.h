@@ -67,8 +67,9 @@ enum smb2_command {
         SMB2_QUERY_INFO      = 16,
         SMB2_SET_INFO        = 17,
         /* SMB2_OPLOCK_BREAK, */
-		SMB2_GET			 = 19,
-		SMB2_PUT			 = 20,
+	
+		SMB2_PUT			 = 19,
+		SMB2_GET			= 20,
 };
 
 /*
